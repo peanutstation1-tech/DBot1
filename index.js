@@ -10,6 +10,9 @@ const client = new Client({
     ]
 });
 
+// A queue to hold commands waiting for Roblox to pick them up
+let commandQueue = [];
+
 client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
@@ -20,7 +23,6 @@ async function analyzeChannelHistory(channelId) {
         const channel = await client.channels.fetch(channelId);
         if (!channel.isTextBased()) return;
 
-        // Fetch the last 10 messages
         const messages = await channel.messages.fetch({ limit: 10 });
         const now = Date.now();
 
@@ -37,33 +39,61 @@ async function analyzeChannelHistory(channelId) {
 client.on('messageCreate', async message => {
     if (message.author.bot) return;
 
-    if (message.content === '!checkhistory') {
+    const args = message.content.split(' ');
+    const command = args[0].toLowerCase();
+
+    if (command === '!checkhistory') {
         await analyzeChannelHistory(message.channel.id);
         message.reply("Checked channel history! Check your bot console.");
     }
+
+    if (command === '!kick') {
+        const userId = args[1];
+        if (!userId) {
+            return message.reply("Please provide a Roblox User ID! Usage: `!kick <UserId>`");
+        }
+
+        commandQueue.push({ action: 'kick', userId: userId });
+        message.reply(`✅ Queued kick command for Roblox User ID: \`${userId}\``);
+    }
+
+    if (command === '!ban') {
+        const userId = args[1];
+        if (!userId) {
+            return message.reply("Please provide a Roblox User ID! Usage: `!ban <UserId>`");
+        }
+
+        commandQueue.push({ action: 'ban', userId: userId });
+        message.reply(`🚨 Queued ban command for Roblox User ID: \`${userId}\``);
+    }
 });
 
-// --- 2. SETUP EXPRESS WEB SERVER FOR ROBLOX ---
+// --- 2. SETUP EXPRESS WEB SERVER ---
 const app = express();
-app.use(express.json()); // Allows the server to read JSON data sent from Roblox
+app.use(express.json());
 
-// A test route so you can visit your Render URL in a browser
+// A test route to check if Render is online
 app.get('/', (req, res) => {
     res.send('RendR Services Backend is active and running!');
 });
 
-// The endpoint your Roblox game will ping
+// Endpoint for Roblox to fetch pending moderation commands
+app.get('/get-commands', (req, res) => {
+    const pendingCommands = [...commandQueue];
+    commandQueue = []; // Clear queue so commands only run once
+    res.status(200).json({ commands: pendingCommands });
+});
+
+// The endpoint your Roblox game pings when events happen (like player joins)
 app.post('/roblox-message', async (req, res) => {
     const data = req.body;
-    
-    // Print what Roblox sent to your Render console
     console.log("Received data from Roblox:", data);
 
     try {
-        // REPLACE 'YOUR_DISCORD_CHANNEL_ID' with your actual channel ID numbers
-        const channel = await client.channels.fetch('1552082430356230144');
+        // REPLACE WITH YOUR ACTUAL DISCORD CHANNEL ID
+        const channel = await client.channels.fetch('1552081097800548412');
         if (channel) {
-            await channel.send(`**[Automod]**: ${data.message}`);
+            await channel.send(`🎮 **[Roblox Game]**: ${data.message} (Players online: ${data.playerCount})`);
         }
     } catch (error) {
         console.error("Failed to send message to Discord channel:", error);
@@ -72,11 +102,10 @@ app.post('/roblox-message', async (req, res) => {
     res.status(200).json({ success: true, status: "Message received and posted to Discord!" });
 });
 
-// Render assigns a dynamic port via process.env.PORT
+// --- 3. START SERVER & LOGIN ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Express server is listening on port ${PORT}`);
 });
 
-// --- 3. LOGIN TO DISCORD ---
 client.login(process.env.DISCORD_TOKEN);

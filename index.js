@@ -1,17 +1,18 @@
 const { Client, GatewayIntentBits } = require('discord.js');
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent
     ]
-]);
+});
 
 client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
-// Example function to analyze message history in a specific channel
+// Function to analyze message history in a specific channel
 async function analyzeChannelHistory(channelId) {
     try {
         const channel = await client.channels.fetch(channelId);
@@ -19,17 +20,11 @@ async function analyzeChannelHistory(channelId) {
 
         // Fetch the last 10 messages
         const messages = await channel.messages.fetch({ limit: 10 });
-        
         const now = Date.now();
 
         messages.forEach(msg => {
-            // Calculate how long ago the message was sent (in seconds)
             const ageInSeconds = Math.floor((now - msg.createdTimestamp) / 1000);
-            
             console.log(`[User: ${msg.author.tag}] said: "${msg.content}" -- Sent ${ageInSeconds} seconds ago`);
-
-            // You can add your custom evaluation logic here:
-            // e.g., if (msg.content.includes("bug") && ageInSeconds < 60) { ... }
         });
 
     } catch (error) {
@@ -37,7 +32,6 @@ async function analyzeChannelHistory(channelId) {
     }
 }
 
-// Trigger your function when needed (or wire it up to an Express endpoint that Roblox pings)
 client.on('messageCreate', async message => {
     if (message.author.bot) return;
 
@@ -47,4 +41,5 @@ client.on('messageCreate', async message => {
     }
 });
 
+// Uses the environment variable we set up on Render
 client.login(process.env.DISCORD_TOKEN);

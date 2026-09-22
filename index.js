@@ -1,5 +1,7 @@
 const { Client, GatewayIntentBits } = require('discord.js');
+const express = require('express');
 
+// --- 1. SETUP DISCORD BOT ---
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -18,7 +20,6 @@ async function analyzeChannelHistory(channelId) {
         const channel = await client.channels.fetch(channelId);
         if (!channel.isTextBased()) return;
 
-        // Fetch the last 10 messages
         const messages = await channel.messages.fetch({ limit: 10 });
         const now = Date.now();
 
@@ -41,5 +42,34 @@ client.on('messageCreate', async message => {
     }
 });
 
-// Uses the environment variable we set up on Render
+// --- 2. SETUP EXPRESS WEB SERVER FOR ROBLOX ---
+const app = express();
+app.use(express.json()); // Allows the server to read JSON data sent from Roblox
+
+// A test route so you can visit your Render URL in a browser and see if it's online
+app.get('/', (req, res) => {
+    res.send('RendR Services Backend is active and running!');
+});
+
+// The endpoint your Roblox game will ping
+app.post('/roblox-message', async (req, res) => {
+    const data = req.body;
+    
+    // Print what Roblox sent to your Render console
+    console.log("Received data from Roblox:", data);
+
+    // Optional: Forward the message to a specific Discord channel automatically
+    // const channel = await client.channels.fetch('YOUR_DISCORD_CHANNEL_ID');
+    // if (channel) channel.send(`[Roblox Game]: ${data.message}`);
+
+    res.status(200).json({ success: true, status: "Message received by bot!" });
+});
+
+// Render assigns a dynamic port, so we use process.env.PORT or default to 3000 locally
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Express server is listening on port ${PORT}`);
+});
+
+// --- 3. LOGIN TO DISCORD ---
 client.login(process.env.DISCORD_TOKEN);

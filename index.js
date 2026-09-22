@@ -20,6 +20,7 @@ async function analyzeChannelHistory(channelId) {
         const channel = await client.channels.fetch(channelId);
         if (!channel.isTextBased()) return;
 
+        // Fetch the last 10 messages
         const messages = await channel.messages.fetch({ limit: 10 });
         const now = Date.now();
 
@@ -46,7 +47,7 @@ client.on('messageCreate', async message => {
 const app = express();
 app.use(express.json()); // Allows the server to read JSON data sent from Roblox
 
-// A test route so you can visit your Render URL in a browser and see if it's online
+// A test route so you can visit your Render URL in a browser
 app.get('/', (req, res) => {
     res.send('RendR Services Backend is active and running!');
 });
@@ -58,14 +59,20 @@ app.post('/roblox-message', async (req, res) => {
     // Print what Roblox sent to your Render console
     console.log("Received data from Roblox:", data);
 
-    // Optional: Forward the message to a specific Discord channel automatically
-    // const channel = await client.channels.fetch('YOUR_DISCORD_CHANNEL_ID');
-    // if (channel) channel.send(`[Roblox Game]: ${data.message}`);
+    try {
+        // REPLACE 'YOUR_DISCORD_CHANNEL_ID' with your actual channel ID numbers
+        const channel = await client.channels.fetch('YOUR_DISCORD_CHANNEL_ID');
+        if (channel) {
+            await channel.send(`🎮 **[Roblox Game]**: ${data.message} (Players online: ${data.playerCount})`);
+        }
+    } catch (error) {
+        console.error("Failed to send message to Discord channel:", error);
+    }
 
-    res.status(200).json({ success: true, status: "Message received by bot!" });
+    res.status(200).json({ success: true, status: "Message received and posted to Discord!" });
 });
 
-// Render assigns a dynamic port, so we use process.env.PORT or default to 3000 locally
+// Render assigns a dynamic port via process.env.PORT
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Express server is listening on port ${PORT}`);

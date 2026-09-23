@@ -10,7 +10,7 @@ const client = new Client({
     ]
 });
 
-// Replace with your actual Discord channel ID where commands and logs are allowed
+// Locked to your specific Discord channel ID
 const TARGET_CHANNEL_ID = '1552081097800548412';
 
 // A queue to hold moderation commands waiting for Roblox to pick them up
@@ -23,8 +23,8 @@ client.once('ready', () => {
 client.on('messageCreate', async message => {
     if (message.author.bot) return;
 
-    // Restrict commands to ONLY the specified Discord channel
-    if (message.channel.id !== 1552081097800548412) return;
+    // Restrict commands to ONLY your specified Discord channel
+    if (message.channel.id !== TARGET_CHANNEL_ID) return;
 
     const args = message.content.split(' ');
     const command = args[0].toLowerCase();
@@ -34,7 +34,7 @@ client.on('messageCreate', async message => {
         if (!targetInput) {
             return message.reply("Please provide a Roblox User ID or Username! Usage: `!kick <UserId/Username> [Reason]`");
         }
-        const reason = args.slice(2).join(' ') || "You have been kicked by RendR Services.";
+        const reason = args.slice(2).join(' ') || "You have been kicked by a Discord moderator.";
 
         commandQueue.push({ action: 'kick', target: targetInput, reason: reason });
         message.reply(`✅ Queued kick for \`${targetInput}\` | Reason: *${reason}*`);
@@ -45,7 +45,7 @@ client.on('messageCreate', async message => {
         if (!targetInput) {
             return message.reply("Please provide a Roblox User ID or Username! Usage: `!ban <UserId/Username> [Reason]`");
         }
-        const reason = args.slice(2).join(' ') || "Banned by RendR Services.";
+        const reason = args.slice(2).join(' ') || "Banned by a Discord moderator.";
 
         commandQueue.push({ action: 'ban', target: targetInput, reason: reason });
         message.reply(`🚨 Queued official ban for \`${targetInput}\` | Reason: *${reason}*`);
@@ -67,7 +67,7 @@ client.on('messageCreate', async message => {
             return message.reply("Please provide a Roblox User ID or Username! Usage: `!status <UserId/Username>`");
         }
 
-        commandQueue.push({ action: 'status', target: targetInput, discordChannelId: message.channel.id });
+        commandQueue.push({ action: 'status', target: targetInput });
         message.reply(`🔍 Checking status for \`${targetInput}\`...`);
     }
 });
@@ -86,13 +86,12 @@ app.get('/get-commands', (req, res) => {
     res.status(200).json({ commands: pendingCommands });
 });
 
-// Endpoint for Roblox to send logs or status reports back to Discord
 app.post('/roblox-message', async (req, res) => {
     const data = req.body;
     console.log("Received data from Roblox:", data);
 
     try {
-        const channel = await client.channels.fetch(1552081097800548412);
+        const channel = await client.channels.fetch(TARGET_CHANNEL_ID);
         if (channel) {
             if (data.type === 'statusReport') {
                 await channel.send(`📊 **[Status Report]**: ${data.message}`);

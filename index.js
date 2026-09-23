@@ -24,7 +24,7 @@ client.on('messageCreate', async message => {
     if (message.author.bot) return;
 
     // Restrict commands to ONLY the specified Discord channel
-    if (message.channel.id !== TARGET_CHANNEL_ID) return;
+    if (message.channel.id !== 1552081097800548412) return;
 
     const args = message.content.split(' ');
     const command = args[0].toLowerCase();
@@ -92,7 +92,7 @@ app.post('/roblox-message', async (req, res) => {
     console.log("Received data from Roblox:", data);
 
     try {
-        const channel = await client.channels.fetch(TARGET_CHANNEL_ID);
+        const channel = await client.channels.fetch(1552081097800548412);
         if (channel) {
             if (data.type === 'statusReport') {
                 await channel.send(`📊 **[Status Report]**: ${data.message}`);

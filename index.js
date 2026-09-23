@@ -14,7 +14,21 @@ const client = new Client({
 let commandQueue = [];
 
 client.once('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`); });  // Function to analyze message history in a specific channel async function analyzeChannelHistory(channelId) {     try {         const channel = await client.channels.fetch(channelId);         if (!channel.isTextBased()) return;          const messages = await channel.messages.fetch({ limit: 10 });         const now = Date.now();          messages.forEach(msg => {             const ageInSeconds = Math.floor((now - msg.createdTimestamp) / 1000);             console.log(`[User: ${msg.author.tag}] said: "${msg.content}" -- Sent ${ageInSeconds} seconds ago`);
+    console.log(`Logged in as ${client.user.tag}!`);
+});
+
+// Function to analyze message history in a specific channel
+async function analyzeChannelHistory(channelId) {
+    try {
+        const channel = await client.channels.fetch(channelId);
+        if (!channel.isTextBased()) return;
+
+        const messages = await channel.messages.fetch({ limit: 10 });
+        const now = Date.now();
+
+        messages.forEach(msg => {
+            const ageInSeconds = Math.floor((now - msg.createdTimestamp) / 1000);
+            console.log(`[User: ${msg.author.tag}] said: "${msg.content}" -- Sent ${ageInSeconds} seconds ago`);
         });
 
     } catch (error) {
@@ -38,7 +52,6 @@ client.on('messageCreate', async message => {
         if (!userId) {
             return message.reply("Please provide a Roblox User ID! Usage: `!kick <UserId> [Reason]`");
         }
-        // Join remaining arguments as the custom reason, or use a default
         const reason = args.slice(2).join(' ') || "You have been kicked by a Discord moderator.";
 
         commandQueue.push({ action: 'kick', userId: userId, reason: reason });
@@ -90,7 +103,7 @@ app.post('/roblox-message', async (req, res) => {
 
     try {
         // REPLACE WITH YOUR ACTUAL DISCORD CHANNEL ID
-        const channel = await client.channels.fetch('1552081097800548412');
+        const channel = await client.channels.fetch('YOUR_DISCORD_CHANNEL_ID');
         if (channel) {
             await channel.send(`🎮 **[Roblox Game]**: ${data.message} (Players online: ${data.playerCount})`);
         }

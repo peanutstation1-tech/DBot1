@@ -90,7 +90,7 @@ app.post('/roblox-message', async (req, res) => {
 
     try {
         // REPLACE WITH YOUR ACTUAL DISCORD CHANNEL ID
-        const channel = await client.channels.fetch('YOUR_DISCORD_CHANNEL_ID');
+        const channel = await client.channels.fetch('1552081097800548412');
         if (channel) {
             await channel.send(`🎮 **[Roblox Game]**: ${data.message} (Players online: ${data.playerCount})`);
         }

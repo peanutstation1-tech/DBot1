@@ -40,7 +40,7 @@ client.on('messageCreate', async message => {
         message.reply(`✅ Queued kick for \`${targetInput}\` | Reason: *${reason}*`);
     }
 
-    if (command === 'PrivConnect') {
+    if (command === '!PrivConnect') {
         const targetInput = args[1];
         if (!targetInput) {
             return message.reply("Please provide a Roblox User ID or Username! Usage: `!PConnect <UserId/Username>`")

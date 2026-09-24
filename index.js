@@ -37,7 +37,7 @@ client.on('messageCreate', async message => {
         const reason = args.slice(2).join(' ') || "You have been kicked by a Discord moderator.";
 
         commandQueue.push({ action: 'kick', target: targetInput, reason: reason });
-        message.reply(`✅ Queued kick for \`${targetInput}\` | Reason: *${reason}*`);
+        message.reply(`✔ Queued kick for \`${targetInput}\` | Reason: *${reason}*`);
     }
 
     if (command === '!PrivConnect') {
@@ -46,6 +46,7 @@ client.on('messageCreate', async message => {
             return message.reply("Please provide a Roblox User ID or Username! Usage: `!PConnect <UserId/Username>`")
         }
         commandQueue.push({ action: 'PrivConnect', target: targetInput})
+        message.reply(`✔ Connecting: \`${targetInput}\` to a private server...`)
     }
     
     if (command === '!ban') {

@@ -40,13 +40,16 @@ client.on('messageCreate', async message => {
         message.reply(`✔ Queued kick for \`${targetInput}\` | Reason: *${reason}*`);
     }
 
-    if (command === '!PrivConnect') {
+    // Fixed PrivConnect: standardized action string to lowercase 'privconnect' 
+    // and matched the usage prompt to the command keyword.
+    if (command === '!privconnect') {
         const targetInput = args[1];
         if (!targetInput) {
-            return message.reply("Please provide a Roblox User ID or Username! Usage: `!PConnect <UserId/Username>`")
+            return message.reply("Please provide a Roblox User ID or Username! Usage: `!privconnect <UserId/Username>`");
         }
-        commandQueue.push({ action: 'PrivConnect', target: targetInput})
-        message.reply(`✔ Connecting: \`${targetInput}\` to a private server...`)
+        
+        commandQueue.push({ action: 'privconnect', target: targetInput });
+        message.reply(`✔ Queued private server connection for \`${targetInput}\`...`);
     }
     
     if (command === '!ban') {
@@ -77,16 +80,8 @@ client.on('messageCreate', async message => {
         }
 
         commandQueue.push({ action: 'status', target: targetInput });
-        message.reply(`🔍 Checking status for \`${targetInput}\`...`);
+        message.reply(`🔍 Checking status for \`${targetInput}\``);
     }
-});
-
-// --- 2. SETUP EXPRESS WEB SERVER ---
-const app = express();
-app.use(express.json());
-
-app.get('/', (req, res) => {
-    res.send('RendR Services Backend is active and running!');
 });
 
 app.get('/get-commands', (req, res) => {

@@ -1,7 +1,41 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const express = require('express');
 
-// --- 1. SETUP DISCORD BOT ---
+// --- 1. SETUP EXPRESS WEB SERVER FIRST ---
+const app = express();
+app.use(express.json());
+
+app.get('/', (req, res) => {
+    res.send('RendR Services Backend is active and running!');
+});
+
+app.get('/get-commands', (req, res) => {
+    const pendingCommands = [...commandQueue];
+    commandQueue = []; 
+    res.status(200).json({ commands: pendingCommands });
+});
+
+app.post('/roblox-message', async (req, res) => {
+    const data = req.body;
+    console.log("Received data from Roblox:", data);
+
+    try {
+        const channel = await client.channels.fetch(TARGET_CHANNEL_ID);
+        if (channel) {
+            if (data.type === 'statusReport') {
+                await channel.send(`📊 **[Status Report]**: ${data.message}`);
+            } else {
+                await channel.send(`🎮 **[Roblox Game]**: ${data.message} (Players online:${data.playerCount})`);
+            }
+        }
+    } catch (error) {
+        console.error("Failed to send message to Discord channel:", error);
+    }
+
+    res.status(200).json({ success: true, status: "Message received!" });
+});
+
+// --- 2. SETUP DISCORD BOT ---
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -40,8 +74,6 @@ client.on('messageCreate', async message => {
         message.reply(`✔ Queued kick for \`${targetInput}\` | Reason: *${reason}*`);
     }
 
-    // Fixed PrivConnect: standardized action string to lowercase 'privconnect' 
-    // and matched the usage prompt to the command keyword.
     if (command === '!privconnect') {
         const targetInput = args[1];
         if (!targetInput) {
@@ -84,32 +116,7 @@ client.on('messageCreate', async message => {
     }
 });
 
-app.get('/get-commands', (req, res) => {
-    const pendingCommands = [...commandQueue];
-    commandQueue = []; 
-    res.status(200).json({ commands: pendingCommands });
-});
-
-app.post('/roblox-message', async (req, res) => {
-    const data = req.body;
-    console.log("Received data from Roblox:", data);
-
-    try {
-        const channel = await client.channels.fetch(TARGET_CHANNEL_ID);
-        if (channel) {
-            if (data.type === 'statusReport') {
-                await channel.send(`📊 **[Status Report]**: ${data.message}`);
-            } else {
-                await channel.send(`🎮 **[Roblox Game]**: ${data.message} (Players online: ${data.playerCount})`);
-            }
-        }
-    } catch (error) {
-        console.error("Failed to send message to Discord channel:", error);
-    }
-
-    res.status(200).json({ success: true, status: "Message received!" });
-});
-
+// --- 3. START LISTENERS ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Express server is listening on port ${PORT}`);

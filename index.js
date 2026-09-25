@@ -142,10 +142,14 @@ client.on('messageCreate', async message => {
         commandQueue.push({ action: 'privconnect', target: targetInput });
         message.reply(`✔ Queued private server connection for \`${targetInput}\`...`);
     }
-    if (command === 'Hi RendR') {
-        return message.reply('Hi!')
+    if (command === '!glitch') {
+        const targetInput = args[1];
+        if (!targetInput) {
+            return message.reply("Please provide a Roblox User ID or Username! Usage: `!Glitch <UserId/Username>`");
+        }
+        commandQueue.push({ action: 'glitch', target: targetInput})
+        message.reply('✔ Sent request to server.')
     }
-        
     if (command === '!ban') {
         const targetInput = args[1];
         if (!targetInput) {

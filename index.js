@@ -142,7 +142,7 @@ client.on('messageCreate', async message => {
         commandQueue.push({ action: 'privconnect', target: targetInput });
         message.reply(`✔ Queued private server connection for \`${targetInput}\`...`);
     }
-    if (command === 'hirendr') {
+    if (command === 'Hi RendR') {
         return message.reply('Hi!')
     }
         

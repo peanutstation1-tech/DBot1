@@ -142,7 +142,10 @@ client.on('messageCreate', async message => {
         commandQueue.push({ action: 'privconnect', target: targetInput });
         message.reply(`✔ Queued private server connection for \`${targetInput}\`...`);
     }
-    
+    if (command === 'hirendr') {
+        return message.reply('Hi!')
+    }
+        
     if (command === '!ban') {
         const targetInput = args[1];
         if (!targetInput) {

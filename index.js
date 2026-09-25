@@ -6,7 +6,66 @@ const app = express();
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.send('RendR Services Backend is active and running!');
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>RendR Services Backend</title>
+            <style>
+                body {
+                    background-color: #121214;
+                    color: #e4e4e7;
+                    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                }
+                .card {
+                    background-color: #18181b;
+                    border: 1px solid #27272a;
+                    padding: 2.5rem;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+                    text-align: center;
+                    max-width: 450px;
+                    width: 100%;
+                }
+                h1 {
+                    font-size: 1.5rem;
+                    margin-bottom: 0.5rem;
+                    color: #f43f5e;
+                }
+                p {
+                    color: #a1a1aa;
+                    font-size: 0.95rem;
+                    margin-top: 0;
+                }
+                .status-badge {
+                    display: inline-block;
+                    background-color: rgba(16, 185, 129, 0.1);
+                    color: #10b981;
+                    padding: 0.35rem 0.85rem;
+                    border-radius: 9999px;
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                    margin-top: 1rem;
+                    border: 1px solid rgba(16, 185, 129, 0.2);
+                }
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <h1>RendR Services</h1>
+                <p>Backend & Discord-Roblox Bridge</p>
+                <div class="status-badge">● Active & Running</div>
+            </div>
+        </body>
+        </html>
+    `);
 });
 
 app.get('/get-commands', (req, res) => {
